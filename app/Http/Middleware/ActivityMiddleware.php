@@ -2,13 +2,13 @@
 
 namespace App\Http\Middleware;
 
+use Carbon\Carbon;
 use Closure;
-use Illuminate\Support\Facades\Auth;
 
 class ActivityMiddleware
 {
     /**
-     * Handle an incoming request.
+     * Проверяем авторизизацию пользователя, добавляем в кеш данные о пользователе.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \Closure  $next
@@ -16,20 +16,16 @@ class ActivityMiddleware
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::check()) {
-
-            $userInfo = [
-                'id' => auth()->id(),
-                'ip' => $request->ip(),
-                'time' => time()
+       if(auth()->check()){
+            $data = [
+                'ip'   => $request->ip(),
+                'time' => Carbon::now()
             ];
 
-            $cacheKey = auth()->user()->getCacheKey();
-            cache($cacheKey, $userInfo);
+            // Записываем в кеш
+            cache([auth()->user()->getCacheKey() => $data], 60);
+       }
 
-            return $next($request);
-        }else{
-            redirect()->route('/');
-        }
+       return $next($request);
     }
 }
