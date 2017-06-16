@@ -2,6 +2,8 @@
 
 namespace App\Console;
 
+use App\Statistic;
+use Carbon\Carbon;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
@@ -17,15 +19,23 @@ class Kernel extends ConsoleKernel
     ];
 
     /**
-     * Define the application's command schedule.
+     * Планировщик для выгрузки данных из кеша в базу (статистика посещения).
      *
      * @param  \Illuminate\Console\Scheduling\Schedule  $schedule
      * @return void
      */
     protected function schedule(Schedule $schedule)
     {
-        // $schedule->command('inspire')
-        //          ->hourly();
+        $schedule->call(function(){
+            $statistic = new Statistic();
+
+            $statistic->info = json_encode(cache('stat'));
+            $statistic->date = Carbon::now();
+            $statistic->save();
+
+            // Очистка кеша
+            cache()->flush();
+        })->daily();
     }
 
     /**
