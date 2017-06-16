@@ -17,5 +17,6 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home')->middleware(['auth', 'activ']);;
+Route::get('/home', 'HomeController@index')->name('home')->middleware(['auth', 'activ']);
+Route::get('/stat', 'CollectStatController@index')->name('stat');
 
